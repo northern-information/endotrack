@@ -1,4 +1,4 @@
-graphics = {}
+local graphics = {}
 
 function graphics:draw_border()
   self:rect(0, 0, 128, 64, 15)
@@ -8,10 +8,13 @@ end
 function graphics:draw_mixer()
   -- self:draw_border()
   for i = 1, 8 do
+    local top_row_height = 5
     local x = (i - 1) * 16
     local w = 14
-    self:text(x, 5, i, 15)
-    self:rect(x, 6, w, 64, 15)
+    local octatrack_level = util.linlin(0, 127, 1, 64 - top_row_height, math.random(0, 127))
+    self:text(x, top_row_height, i, 15)
+    self:rect(x, top_row_height + 1, w, 64, 15)
+    self:rect(x, octatrack_level, 14, 2, 0)
     -- self:rect(x + w, y, 16 - w, 64, 0)
   end
   

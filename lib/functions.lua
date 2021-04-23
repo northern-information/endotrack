@@ -1,4 +1,4 @@
-fn = {}
+local fn = {}
 
 function rerun()
   norns.script.load(norns.state.script)
