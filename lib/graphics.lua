@@ -1,34 +1,64 @@
 local graphics = {}
 
-function graphics:draw_border()
-  self:rect(0, 0, 128, 64, 15)
-  self:rect(1, 1, 126, 62, 0)
-end
-
-function graphics:draw_mixer()
-  -- self:draw_border()
-  for i = 1, 8 do
-    local top_row_height = 5
-    local x = (i - 1) * 16
-    local w = 14
-    local octatrack_level = util.linlin(0, 127, 1, 64 - top_row_height, math.random(0, 127))
-    self:text(x, top_row_height, i, 15)
-    self:rect(x, top_row_height + 1, w, 64, 15)
-    self:rect(x, octatrack_level, 14, 2, 0)
-    -- self:rect(x + w, y, 16 - w, 64, 0)
-  end
-  
-
-end
-
--- northern information
--- graphics library
-
 function graphics.init()
   screen.aa(0)
   screen.font_face(0)
   screen.font_size(8)
+  graphics.screen_dirty = true
+  graphics.max_width = 128
+  graphics.max_height = 64
+  graphics.fps = 15
+  graphics.top_row_height = 5
+  graphics.track_width = 16
 end
+
+function graphics:draw_border()
+  self:rect(0, 0, 128, 64, 15)
+  -- self:rect(1, 1, 126, 62, 0)
+end
+
+function graphics:draw_track_numbers()
+  for i = 1, 8 do
+    local x = (i - 1) * self.track_width
+    self:text(x, self.top_row_height, i, 15)
+  end
+end
+
+function graphics:draw_octatrack_levels()
+  for i = 1, 8 do
+    local x = (i - 1) * self.track_width
+    local y = self.max_height
+    local w = self.track_width - 2
+    local raw_level = buffer:get_octatrack_level(i)
+    local max_level = self.max_height - (self.top_row_height + 1)
+    local h = util.linlin(0, 127, 0, max_level, raw_level)
+    self:rect(x, y, w, -h, 15)        -- background
+  end
+end
+
+function graphics:draw_controller_levels()
+  for i = 1, 8 do
+    local x = (i - 1) * self.track_width
+    local y = self.max_height
+    local w = self.track_width - 2
+    local raw_level = buffer:get_controller_level(i)
+    -- if raw_level < buffer:get_octatrack_level(i) then
+      local max_level = self.max_height - (self.top_row_height + 1)
+      local h = util.linlin(0, 127, 0, max_level, raw_level)
+      self:rect(x, y, w, -h, 15)          -- background
+      self:rect(x, y, 1, -h, 0)           -- left margin
+      self:rect(x + w - 1, y, 1, -h, 0)   -- right margin
+      for i = 0, y do
+        if i > y - h and i % 2 == 0 then
+          self:mlrs(x, i, w, 1, 0)        -- dashes
+        end
+      end
+    -- end
+  end
+end
+
+-- northern information
+-- graphics library
 
 function graphics:setup()
   screen.clear()
@@ -82,4 +112,4 @@ function graphics:text_center(x, y, s, l)
   screen.text_center(s)
 end
 
-return graphics
+return graphics 
